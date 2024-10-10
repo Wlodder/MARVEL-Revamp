@@ -1,4 +1,5 @@
 import bs4
+import sys
 import os
 import pandas as pd
 import requests
@@ -65,28 +66,29 @@ def image_download(url):
 # Example usage:
 
 if __name__ == '__main__':
-
-    if os.path.isfile('all_files.csv'):
-        df = pd.read_csv('all_files.csv')
+    st = sys.argv[1]
+    output_file_name = sys.argv[2]
+    
+    if os.path.isfile(output_file_name):
+        df = pd.read_csv(output_file_name)
     else:
         df = pd.DataFrame(columns=['source_file','file_name','class_name'])
     sitemaps = os.listdir('./sitemaps')
 
-    for st in sitemaps:
-        xml_url=f'./sitemaps/{st}'
-        extracted_urls = extract_urls_from_xml_url(xml_url)
+    xml_url=f'{st}'
+    extracted_urls = extract_urls_from_xml_url(xml_url)
 
-        # Example usage:
-        i =0 
-        for url in extracted_urls:
-            i += 1
-            extracted_name = extract_name_from_url(url)
-            print(url, extracted_name) 
-            fname = image_download(url)
+    # Example usage:
+    i =0 
+    for url in extracted_urls:
+        i += 1
+        extracted_name = extract_name_from_url(url)
+        print(url, extracted_name) 
+        fname = image_download(url)
 
-            new_row = {'source_file':st,'file_name':fname,'class_name':extracted_name}
-            df = df.append(new_row, ignore_index=True)
+        new_row = {'source_file':st,'file_name':fname,'class_name':extracted_name}
+        df = df.append(new_row, ignore_index=True)
 
-            df.to_csv('all_files.csv', index=None)
-            if i > 10:
-                break
+        df.to_csv(output_file_name, index=None)
+        if i > 10:
+            break
